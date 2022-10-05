@@ -19,7 +19,7 @@ class Step(JinjaMixin, KubernetesMixin, Runnable):
         # Evaluate parameter values
         self._spec = self.apply_params_str(
             json.dumps(step_spec),
-            step_spec["params"]
+            step_spec.get("params", {})
         )
 
         for kw in ["namespace", "volumes"]:
@@ -29,6 +29,7 @@ class Step(JinjaMixin, KubernetesMixin, Runnable):
 
         self._ns = kwargs["namespace"]
         self._volumes = kwargs.get("volumes")
+        self._service_account_name = kwargs["service_account_name"]
 
     def run(self, wait: bool = True) -> RunnableResult:
 
@@ -37,7 +38,7 @@ class Step(JinjaMixin, KubernetesMixin, Runnable):
 
         self.log.info(f"Running step: {spec_name}")
 
-        runnable_result = RunnableResult()
+        runnable_result = RunnableResult(name=spec_name)
 
         try:
             self.create_namespaced_pod(
@@ -45,7 +46,7 @@ class Step(JinjaMixin, KubernetesMixin, Runnable):
                 spec_name,
                 self._spec["command"],
                 self._spec.get("args", []),
-                self._spec["serviceAccountName"],
+                self._service_account_name,
                 self._ns,
                 self._spec.get("volumeMounts", []),
                 self._volumes,

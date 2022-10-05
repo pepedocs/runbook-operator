@@ -31,7 +31,7 @@ class DefaultRunbookStrategy(RunbookStrategy):
             runnable_result = runnable.run(wait=True)
 
             if not runnable_result.status:
-                raise RunnableError(result.error)
+                raise RunnableError(runnable_result, result.error)
 
         result.resolved_status = runnable_result.status
         return result

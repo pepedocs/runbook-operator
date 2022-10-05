@@ -35,5 +35,6 @@ class StrategyResult(Result):
 
 
 class RunnableResult(Result):
-    def __init__(self):
+    def __init__(self, name=None):
         super().__init__()
+        self._name = name

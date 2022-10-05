@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: runbook-example
+  namespace: ro-tests
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: runbook-example
+  namespace: ro-tests
+rules:
+- apiGroups: [""]
+  resources: ["pods", "namespaces", "pods/log"]
+  verbs: ["get", "watch", "list"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: runbook-example
+  namespace: ro-tests
+subjects:
+- kind: ServiceAccount
+  name: runbook-example
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: runbook-example
+  apiGroup: ""

@@ -1,6 +1,8 @@
 import kubernetes
 import json
 
+from datetime import datetime as dt
+
 from jinja2 import Template
 
 from pkg.exceptions import PodStatusPhaseFailedError
@@ -112,21 +114,21 @@ class KubernetesMixin(Mixin):
             elif event["type"] == "DELETED":
                 raise PodDeletedError(f"Pod was already deleted: {name}")
 
+    def patch_runbook_status(self,
+                             name: str,
+                             namespace: str,
+                             patch: dict):
 
-        return resp
+        date_str = dt.utcnow().isoformat()
+        patch.update({"lastTransitionTime": date_str})
+        status = {"status": patch}
 
-    def patch_namespaced_custom_object(self,
-                                group: str,
-                                version: str,
-                                plural: str,
-                                name: str,
-                                namespace: str,
-                                body:str):
-        self._custom_objects_api.patch_namespaced_custom_object(
-            group,
-            version,
+        return self._custom_objects_api.patch_namespaced_custom_object(
+            "runbook.beastduck.com",
+            "v1",
             namespace,
-            plural,
+            "runbooks",
             name,
-            body
+            status
         )
+
